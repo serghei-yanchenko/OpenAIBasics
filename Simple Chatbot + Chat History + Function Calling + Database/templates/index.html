@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat with GPT-3.5</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #chat-container {
+            width: 400px;
+            text-align: center;
+        }
+        #chat-box {
+            height: 600px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            overflow-y: scroll;
+            padding: 20px;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin-bottom: 10px;
+            clear: both;
+        }
+        .user, .bot {
+            float: left;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .user .content, .bot .content {
+            border-radius: 10px;
+            padding: 10px;
+            display: inline-block;
+            text-align: left;  /* This aligns the text to the left within the bubble */
+
+        }
+        .user .content {
+            background-color: #007bff;
+            color: white;
+            float: right;
+        }
+        .bot .content {
+            background-color: #e6e6e6;
+            float: left; /* This keeps the bot messages aligned to the left */
+        }
+
+        input[type="text"], button {
+            width: calc(100% - 40px); /* Adjusting for the padding */
+            padding: 10px;
+            margin: 5px 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <div id="chat-box">
+    </div>
+    <input type="text" id="user-input" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("user-input").addEventListener("keyup", function(event) {
+                if (event.key === "Enter") {
+                    sendMessage();
+                }
+            });
+        });
+
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+
+            // Clear user input right after clicking "Send" or pressing "Enter"
+            document.getElementById("user-input").value = "";
+
+
+            // Append user message to chat box
+            const chatBox = document.getElementById("chat-box");
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.className = "message user";
+            userMessageDiv.innerHTML = `<div class="content">${userInput}</div>`;
+            chatBox.appendChild(userMessageDiv);
+
+            // Fetch response from Flask API
+            const response = await fetch("/generate_gpt_response", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `user_input=${encodeURIComponent(userInput)}`
+            });
+            const botReply = await response.json();
+
+            // Append bot message to chat box
+            const botMessageDiv = document.createElement("div");
+            botMessageDiv.className = "message bot";
+            botMessageDiv.innerHTML = `<div class="content">${botReply.answer}</div>`;
+            chatBox.appendChild(botMessageDiv);
+
+            // Clear user input
+            document.getElementById("user-input").value = "";
+
+            // Scroll chat box to show latest message
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+
+</body>
+</html>
+
+

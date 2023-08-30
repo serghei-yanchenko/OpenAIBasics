@@ -1,0 +1,7 @@
+TestTable
+
+"ID"	INTEGER NOT NULL UNIQUE,
+	"CarMake"	TEXT,
+	"CarModel"	TEXT,
+	"CarOwner"	TEXT,
+	PRIMARY KEY("ID" AUTOINCREMENT)
